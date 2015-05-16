@@ -36,6 +36,7 @@
         "./lib/omnisharp-atom/dependency-checker.ts",
         "./lib/omnisharp-atom/features/code-check.ts",
         "./lib/omnisharp-atom/features/code-format.ts",
+        "./lib/omnisharp-atom/features/code-lens.ts",
         "./lib/omnisharp-atom/features/error-handler.ts",
         "./lib/omnisharp-atom/features/find-usages.ts",
         "./lib/omnisharp-atom/features/go-to-definition.ts",
