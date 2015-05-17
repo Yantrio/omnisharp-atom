@@ -37,11 +37,13 @@ class CodeLens {
   }
 
   public updateCodeLens(editor: Atom.TextEditor) {
-    var self = this; // yay for scoping, I always forget in typescript, what this does, big arrow should bind this to the class instance, right?
+    var self = this; // yay for scoping, I always forget in typhadowescript, what this does, big arrow should bind this to the class instance, right?
     if (editor == undefined || Omni.client === undefined || Omni.client.currentState !== omnisharp.DriverState.Connected) return;
 
     var lineHeight = "+=" + editor.getLineHeightInPixels() + "px";
     var editorView = $(atom.views.getView(editor));
+
+    var initialBufferPos = editor.getCursorBufferPosition();
 
     _.debounce(() => {
       var request = <OmniSharp.Models.FormatRangeRequest>Omni.makeRequest(editor);
@@ -58,18 +60,13 @@ class CodeLens {
             //go get the count of the usages
             Omni.client.findusagesPromise(req)
               .then((findUsagesResponse) => {
-
-                var line = $(`[data-screen-row = '${req.Line}']`, self.getFromShadowDom(editorView, ".scroll-view"));
-                var references = $(`<div class="codelens" style = "position: absolute; top: ${parseInt(line.css("top"), 10) || 0}px;" > ${findUsagesResponse.QuickFixes.length } References </div>`);
-                references
-                  .insertBefore(line)
-                  .nextAll()
-                  .each((idx, item) => {
-                    var jqitem = $(item);
-                    if (!jqitem.is(".codelens")) {
-                      $(item).animate({ Top: lineHeight }, 0);
-                    }
-                  });
+                var range = editor.getBuffer().rangeForRow(req.Line - 1);
+                var marker = editor.markBufferRange(range);
+                var decorationParams = {
+                  type : "line",
+                  class : `codelens-${findUsagesResponse.QuickFixes.length}`
+                };
+                var decoration = editor.decorateMarker(marker, decorationParams);
               });
           });
         });
